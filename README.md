@@ -1,6 +1,6 @@
 # vue-hex-date-picker
 
-> A Vue.js project
+> A Vue component for date pickers in the Hex Framework from LionsMouth Digital.
 
 ## Build Setup
 
