@@ -49,5 +49,6 @@
     "vueify-insert-css": "^1.0.0",
     "watchify": "^3.4.0"
   },
-  "version": "1.0.0-beta"
+  "version": "1.0.0-beta",
+  "main": "src/components/HexDatePicker.vue"
 }
