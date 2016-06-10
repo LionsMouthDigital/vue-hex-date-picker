@@ -6,15 +6,15 @@
           <th colspan="7">
             <div class="controls">
               <div>
-                <button @click="prevMonth()" class="button-prev"></button>
+                <button @click.prevent="prevMonth()" class="button-prev"></button>
                 <span class="active-date">{{ moment(date).format('MMM') }}</span>
-                <button @click="nextMonth()" class="button-next"></button>
+                <button @click.prevent="nextMonth()" class="button-next"></button>
               </div>
 
               <div>
-                <button @click="prevYear()" class="button-prev"></button>
+                <button @click.prevent="prevYear()" class="button-prev"></button>
                 <span class="active-date">{{ moment(date).format('YYYY') }}</span>
-                <button @click="nextYear()" class="button-next"></button>
+                <button @click.prevent="nextYear()" class="button-next"></button>
               </div>
             </div>
           </th>
