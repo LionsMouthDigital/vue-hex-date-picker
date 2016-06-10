@@ -2,21 +2,21 @@
   <div class="calendar">
     <table>
       <thead>
-        <tr class="controls">
-          <th>
-            <button @click="prevMonth()" class="button-prev"></button>
-          </th>
-          <th colspan="2">{{ moment(date).format('MMM') }}</th>
-          <th>
-            <button @click="nextMonth()" class="button-next"></button>
-          </th>
+        <tr>
+          <th colspan="7">
+            <div class="controls">
+              <div>
+                <button @click="prevMonth()" class="button-prev"></button>
+                <span class="active-date">{{ moment(date).format('MMM') }}</span>
+                <button @click="nextMonth()" class="button-next"></button>
+              </div>
 
-          <th>
-            <button @click="prevYear()" class="button-prev"></button>
-          </th>
-          <th>{{ moment(date).format('YYYY') }}</th>
-          <th>
-            <button @click="nextYear()" class="button-next"></button>
+              <div>
+                <button @click="prevYear()" class="button-prev"></button>
+                <span class="active-date">{{ moment(date).format('YYYY') }}</span>
+                <button @click="nextYear()" class="button-next"></button>
+              </div>
+            </div>
           </th>
         </tr>
 
@@ -56,7 +56,7 @@
         formatPrecise: 'YYYY-MM-DD HH:mm',
         // Selected date.
         selected:      '',
-        today:         moment().format(this.format),
+        today:         moment().format('YYYY-MM-DD'),
       };
     },
 
@@ -108,19 +108,19 @@
         var classes = '';
         // For today.
         if (this.today === date) {
-          classes+= ' today';
+          classes += ' today';
         }
         // For currently picked date.
         if (date === this.selected) {
-          classes+= ' picked';
+          classes += ' picked';
         }
         // For disabled dates.
         if (this.isDisabled(date)) {
-          classes+= ' disabled';
+          classes += ' disabled';
         }
         // For days in inactive months.
         if ((this.date).split('-')[1] !== date.split('-')[1]) {
-          classes+= ' in-inactive-month';
+          classes += ' in-inactive-month';
         }
 
         return classes;
