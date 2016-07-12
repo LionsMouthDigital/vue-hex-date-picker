@@ -69,7 +69,7 @@
        * @return {string}
        */
       displayDate() {
-        return this.selected ? moment(this.selected).format(this.displayForamt) : '';
+        return this.selected ? moment(this.selected).format(this.displayFormat) : '';
       },
     },
 
@@ -86,7 +86,7 @@
 
       // Set the user-friendly date format.
       // See [Moment.js docs](http://momentjs.com/docs/#year-month-and-day-tokens).
-      displayForamt: {
+      displayFormat: {
         type: String,
         default: 'MMMM Do'
       },
