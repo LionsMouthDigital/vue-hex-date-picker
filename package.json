@@ -1,5 +1,6 @@
 {
   "name": "vue-hex-date-picker",
+  "main": "src/components/HexDatePicker.vue",
   "version": "1.0.0-beta.6",
   "description": "A Vue component for date pickers in the Hex Framework from LionsMouth Digital.",
   "author": "Curtis Blackwell <blackwell.curtis@gmail.com>",
