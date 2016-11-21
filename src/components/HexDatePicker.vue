@@ -109,6 +109,22 @@
 
 
     props: {
+      /**
+       * Specify controls to show.
+       *
+       * Acceptable values include:
+       *  - `true` for all,
+       *  - `false` for none,
+       *  - `month` for only the month, or
+       *  - `year` for only the year (for some reason...).
+       *
+       * @type {Object}
+       */
+      controls: {
+        type:    [Boolean, String],
+        default: true,
+      },
+
       // Prevent dates from getting picked.
       // Accepts a pipe-separated list of dates in `YYYY-MM-DD` format.
       disableDates:  String,
