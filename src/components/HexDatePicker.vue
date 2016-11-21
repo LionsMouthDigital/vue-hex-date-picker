@@ -1,62 +1,96 @@
 <template>
   <div class="calendar">
-    <table>
-      <thead>
-        <tr>
-          <th colspan="7">
-            <div class="controls">
-              <div>
-                <button @click.prevent="prevMonth()" class="button-prev"></button>
-                <span class="active-date">{{ moment(date).format('MMM') }}</span>
-                <button @click.prevent="nextMonth()" class="button-next"></button>
-              </div>
+    <header class="calendar-header">
+      <div class="controls" v-if="controls">
+        <div v-if="controls === true || controls === 'year'">
+          <button class="button-prev" @click.prevent="prevYear()">
+            <span class="sr-only">Previous year</span>
+          </button>
+          <span class="active-date">{{ moment(date).format('YYYY') }}</span>
+          <button class="button-next" @click.prevent="nextYear()">
+            <span class="sr-only">Next year</span>
+          </button>
+        </div>
 
-              <div>
-                <button @click.prevent="prevYear()" class="button-prev"></button>
-                <span class="active-date">{{ moment(date).format('YYYY') }}</span>
-                <button @click.prevent="nextYear()" class="button-next"></button>
-              </div>
-            </div>
-          </th>
-        </tr>
+        <div v-if="controls === true || controls === 'month'">
+          <button class="button-prev" @click.prevent="prevMonth()">
+            <span class="sr-only">Previous month</span>
+          </button>
+          <span class="active-date">{{ moment(date).format('MMM') }}</span>
+          <button class="button-next" @click.prevent="nextMonth()">
+            <span class="sr-only">Next month</span>
+          </button>
+        </div>
+      </div>
 
-        <tr class="days-of-week">
-          <th v-for="day in daysOfWeek">{{ day }}</th>
-        </tr>
-      </thead>
+      <div class="days-of-week">
+        <div v-for="day in ['S', 'M', 'T', 'W', 'Th', 'F', 'Sa']">{{ day }}</div>
+      </div>
+    </header>
 
-      <tbody>
-        <tr v-for="week in weeks">
-          <td
-            v-for  = "day in week"
-            @click = "pick(day)"
-            class  = "{{ getDateClasses(day) }}"
-          >
-            {{ moment(day, format).format('DD') }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="week" v-for="week in weeks">
+      <div
+        @click = "pick(day)"
+        :class = "getDateClasses(day)"
+        v-for  = "day in week"
+      >
+        {{ moment(day, format).format('DD') }}
+      </div>
+    </div>
   </div>
 </template>
+
+
+
 
 <script>
   import moment      from 'moment';
   import HexCalendar from 'vue-hex-calendar';
 
   export default {
+    name: 'HexDatePicker',
+
     extends: HexCalendar,
 
     data() {
       return {
-        // Base date to build the calendar on. If `picked` prop is unspecified, it will default to
-        // today, and the rest of the current month will be shown.
-        date:          '',
-        disabled:      '',
+        /**
+         * Base date to build the calendar on. `picked` prop if specified, falls back to today.
+         * The rest of the current month displays.
+         *
+         * @type {String}
+         */
+        date: '',
+
+        /**
+         * Concatenation of `this.disableDates` and `this.disableDays`.
+         *
+         * @type {Array}
+         */
+        disabled: [],
+
+        /**
+         * Moment JS formatting for precise dates.
+         *
+         * @type {String}
+         */
         formatPrecise: 'YYYY-MM-DD HH:mm',
-        // Selected date.
-        selected:      '',
-        today:         moment().format('YYYY-MM-DD'),
+
+        /**
+         * Selected date.
+         *
+         * Use `this.pick()` to set.
+         *
+         * @type {String}
+         */
+        selected: '',
+
+        /**
+         * Today's date in `YYYY-MM-DD` format.
+         *
+         * @type {String}
+         */
+        today: moment().format('YYYY-MM-DD'),
       };
     },
 
@@ -87,12 +121,20 @@
       // Set the user-friendly date format.
       // See [Moment.js docs](http://momentjs.com/docs/#year-month-and-day-tokens).
       displayFormat: {
-        type: String,
-        default: 'MMMM Do'
+        type:    String,
+        default: 'MMMM Do',
       },
 
+      // Value of `ref` for the `input` to push the submittable value to.
+      input:        String,
+      // Value of `ref` for the `input` to push the display value to.
+      inputDisplay: String,
+
       // Set the default selected date.
-      picked: String,
+      picked: {
+        type:    String,
+        default: '',
+      },
     },
 
 
@@ -105,7 +147,7 @@
        * @return {string}
        */
       getDateClasses(date) {
-        var classes = '';
+        let classes = 'day';
         // For today.
         if (this.today === date) {
           classes += ' today';
@@ -134,9 +176,9 @@
        * @return {Boolean}
        */
       isDisabled(date) {
-        var datePrecise   = moment(date + ' 00:00', this.formatPrecise);
-        var todayPrecise  = moment(moment().format(this.format) + ' 00:00', this.formatPrecise);
-        var diffFromToday = datePrecise.diff(todayPrecise, 'days');
+        let datePrecise   = moment(date + ' 00:00', this.formatPrecise);
+        let todayPrecise  = moment(moment().format(this.format) + ' 00:00', this.formatPrecise);
+        let diffFromToday = datePrecise.diff(todayPrecise, 'days');
 
         return this.disabled.indexOf(date) > -1                        ||
                this.disabled.indexOf(moment(date).format('dddd')) > -1 ||
@@ -155,20 +197,44 @@
       pick(date) {
         // Ensure the date isn't disabled and select it.
         this.selected = !this.isDisabled(date) ? date : this.selected;
+        this.updateInputValues();
+      },
+
+      /**
+       * Update the values of inputs.
+       *
+       * @author Curtis Blackwell
+       * @return {void}
+       */
+      updateInputValues() {
+        // Value to submit to form.
+        if (typeof this.$parent.$refs[this.input] !== 'undefined') {
+          this.$parent.$refs[this.input].value = this.selected;
+        }
+
+        // Value to display to user.
+        if (typeof this.$parent.$refs[this.inputDisplay] !== 'undefined') {
+          this.$parent.$refs[this.inputDisplay].value = this.displayDate;
+        }
       },
     },
 
 
-    ready() {
+    created() {
       // Set the date based on the `picked` prop.
-      this.date     = this.picked ? this.picked : moment().format(this.format);
+      this.date     = this.picked ? this.picked : this.today;
       this.selected = this.picked;
 
       // Create an array of disabled dates based on the `disable` prop.
-      var disabledDays  = typeof this.disableDays  === 'string' ? this.disableDays.split('|')  : [];
-      var disabledDates = typeof this.disableDates === 'string' ? this.disableDates.split('|') : [];
+      let disabledDays  = typeof this.disableDays  === 'string' ? this.disableDays.split('|')  : [];
+      let disabledDates = typeof this.disableDates === 'string' ? this.disableDates.split('|') : [];
 
       this.disabled = disabledDays.concat(disabledDates);
+    },
+
+
+    mounted() {
+      this.updateInputValues();
     },
   };
 </script>
