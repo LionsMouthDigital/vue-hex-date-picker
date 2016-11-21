@@ -1,5 +1,5 @@
 <template>
-  <div class="calendar">
+  <div class="calendar" v-show="show">
     <header class="calendar-header">
       <div class="controls" v-if="controls">
         <div v-if="controls === true || controls === 'year'">
@@ -52,6 +52,106 @@
 
     extends: HexCalendar,
 
+
+    props: {
+      /**
+       * Specify controls to show.
+       *
+       * Acceptable values include:
+       *  - `true` for all,
+       *  - `false` for none,
+       *  - `month` for only the month, or
+       *  - `year` for only the year (for some reason...).
+       *
+       * @type {Object}
+       */
+      controls: {
+        type:    [Boolean, String],
+        default: true,
+      },
+
+      /**
+       * Dates to disable.
+       *
+       * Accepts a pipe-separated list of dates in `YYYY-MM-DD` format.
+       *
+       * @type {String}
+       */
+      disableDates:  String,
+      /**
+       * Days to disable.
+       *
+       * Accepts a pipe-separated list of days of the week.
+       *
+       * @type {String}
+       */
+      disableDays: String,
+      /**
+       * Disable past dates.
+       *
+       * @type {Boolean}
+       */
+      disablePast: Boolean,
+      /**
+       * Disable today's date.
+       *
+       * @type {Boolean}
+       */
+      disableToday: Boolean,
+      /**
+       * Disable future dates.
+       *
+       * @type {Boolean}
+       */
+      disableFuture: Boolean,
+
+      /**
+       * Set the user-friendly date format.
+       *
+       * See [Moment.js docs](http://momentjs.com/docs/#year-month-and-day-tokens).
+       *
+       * @type {String}
+       */
+      displayFormat: {
+        type:    String,
+        default: 'MMMM Do',
+      },
+
+      /**
+       * Value of `ref` for the `input` to push the submittable value to.
+       *
+       * @type {String}
+       */
+      input:        String,
+      /**
+       * Value of `ref` for the `input` to push the display value to.
+       *
+       * @type {String}
+       */
+      inputDisplay: String,
+
+      /**
+       * Picked date on load.
+       *
+       * @type {String}
+       */
+      picked: {
+        type:    String,
+        default: '',
+      },
+
+      /**
+       * Pass `true` to show the calendar on load.
+       *
+       * @type {Object}
+       */
+      visible: {
+        type:    Boolean,
+        default: false,
+      },
+    },
+
+
     data() {
       return {
         /**
@@ -91,6 +191,13 @@
          * @type {String}
          */
         today: moment().format('YYYY-MM-DD'),
+
+        /**
+         * Show the calendar?
+         *
+         * @type {Boolean}
+         */
+        show: false,
       };
     },
 
@@ -104,52 +211,6 @@
        */
       displayDate() {
         return this.selected ? moment(this.selected).format(this.displayFormat) : '';
-      },
-    },
-
-
-    props: {
-      /**
-       * Specify controls to show.
-       *
-       * Acceptable values include:
-       *  - `true` for all,
-       *  - `false` for none,
-       *  - `month` for only the month, or
-       *  - `year` for only the year (for some reason...).
-       *
-       * @type {Object}
-       */
-      controls: {
-        type:    [Boolean, String],
-        default: true,
-      },
-
-      // Prevent dates from getting picked.
-      // Accepts a pipe-separated list of dates in `YYYY-MM-DD` format.
-      disableDates:  String,
-      // Accepts a pipe-separated list of days of the week.
-      disableDays:   String,
-      disablePast:   Boolean,
-      disableToday:  Boolean,
-      disableFuture: Boolean,
-
-      // Set the user-friendly date format.
-      // See [Moment.js docs](http://momentjs.com/docs/#year-month-and-day-tokens).
-      displayFormat: {
-        type:    String,
-        default: 'MMMM Do',
-      },
-
-      // Value of `ref` for the `input` to push the submittable value to.
-      input:        String,
-      // Value of `ref` for the `input` to push the display value to.
-      inputDisplay: String,
-
-      // Set the default selected date.
-      picked: {
-        type:    String,
-        default: '',
       },
     },
 
@@ -214,6 +275,14 @@
         // Ensure the date isn't disabled and select it.
         this.selected = !this.isDisabled(date) ? date : this.selected;
         this.updateInputValues();
+
+        // If this date-picker wasn't visible on load, hide it after giving the user a split-second
+        // to see their picked date selected.
+        if (!this.visible) {
+          setTimeout(() => {
+            this.show = false;
+          }, 100);
+        }
       },
 
       /**
@@ -240,6 +309,9 @@
       // Set the date based on the `picked` prop.
       this.date     = this.picked ? this.picked : this.today;
       this.selected = this.picked;
+
+      // Show if `visible` prop is `true`.
+      this.show = this.visible;
 
       // Create an array of disabled dates based on the `disable` prop.
       let disabledDays  = typeof this.disableDays  === 'string' ? this.disableDays.split('|')  : [];
