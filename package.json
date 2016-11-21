@@ -69,7 +69,7 @@
   "repository": [
     {
       "type": "git",
-      "url": "https://github.com/LionsMouthDigital/vue-hex-datepicker.git"
+      "url": "https://github.com/LionsMouthDigital/vue-hex-date-picker.git"
     }
   ],
   "license": "CC-BY-SA-4.0"
